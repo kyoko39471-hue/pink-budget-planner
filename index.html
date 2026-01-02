@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muted Pink Budget</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #fffafb; 
+            color: #8d7373; 
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 192, 203, 0.3);
+        }
+        .pink-pastel-gradient {
+            background: linear-gradient(135deg, #f3d1d1 0%, #f9e1e1 100%);
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 30px -10px rgba(243, 209, 209, 0.5);
+        }
+        .hidden { display: none; }
+        input::placeholder { color: #d1b1b1; }
+        
+        /* Custom styling for the date picker to keep it pink */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(80%) sepia(20%) saturate(500%) hue-rotate(314deg) brightness(95%) contrast(85%);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Auth Container -->
+    <div id="auth-container" class="w-full max-w-md glass-card rounded-[2rem] p-8 custom-shadow">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-[#e5b7b7] mb-1">Welcome ✨</h1>
+            <p class="text-xs text-[#d1b1b1]">Sign in to your pink paradise</p>
+        </header>
+
+        <div class="space-y-4">
+            <input type="email" id="auth-email" placeholder="Email address" 
+                class="w-full p-3 rounded-xl border border-[#f9e1e1] outline-none focus:border-[#f3d1d1] bg-white/50">
+            <input type="password" id="auth-password" placeholder="Password" 
+                class="w-full p-3 rounded-xl border border-[#f9e1e1] outline-none focus:border-[#f3d1d1] bg-white/50">
+            
+            <div class="flex flex-col gap-2 pt-2">
+                <button onclick="handleSignIn()" 
+                    class="pink-pastel-gradient w-full py-3 rounded-xl text-[#8d7373] font-bold hover:brightness-95 active:scale-95 transition-all">
+                    Login
+                </button>
+                <button onclick="handleSignUp()" 
+                    class="w-full py-2 text-xs text-[#d1b1b1] hover:text-[#e5b7b7] underline">
+                    No account? Create one!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Container -->
+    <div id="app-container" class="w-full max-w-md glass-card rounded-[2rem] p-8 custom-shadow hidden">
+        <header class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-[#e5b7b7]">My Budget 🎀</h1>
+                <p id="user-email" class="text-[10px] text-[#d1b1b1]"></p>
+            </div>
+            <button onclick="handleSignOut()" class="text-[10px] text-[#d1b1b1] hover:text-[#e5b7b7] uppercase tracking-widest">Logout</button>
+        </header>
+
+        <!-- Month Filter -->
+        <div class="mb-6">
+            <label class="text-[10px] uppercase tracking-widest text-[#d1b1b1] ml-1">Viewing Month</label>
+            <select id="month-filter" onchange="updateUI()" class="w-full mt-1 p-2 rounded-xl border border-[#f9e1e1] bg-white/50 text-sm text-[#8d7373] outline-none focus:border-[#f3d1d1]">
+                <!-- Options populated by JS -->
+            </select>
+        </div>
+
+        <!-- Balance Section -->
+        <div class="pink-pastel-gradient rounded-2xl p-6 text-[#8d7373] text-center mb-6 shadow-sm">
+            <p class="text-xs opacity-80 uppercase tracking-widest mb-1">Monthly Balance</p>
+            <h2 id="balance" class="text-4xl font-bold">$0.00</h2>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="bg-white/50 p-4 rounded-xl border border-[#fdf0f0] text-center">
+                <p class="text-[10px] text-[#d1b1b1] uppercase">Income</p>
+                <p id="income" class="text-lg font-semibold text-[#a3b18a]">+$0.00</p>
+            </div>
+            <div class="bg-white/50 p-4 rounded-xl border border-[#fdf0f0] text-center">
+                <p class="text-[10px] text-[#d1b1b1] uppercase">Expense</p>
+                <p id="expense" class="text-lg font-semibold text-[#e5b7b7]">-$0.00</p>
+            </div>
+        </div>
+
+        <!-- Add Transaction -->
+        <div class="mb-8 p-4 bg-[#fff5f6] rounded-2xl">
+            <h3 class="text-xs font-semibold mb-3 text-[#e5b7b7] uppercase tracking-widest">Add New</h3>
+            <div class="space-y-3">
+                <input type="text" id="text" placeholder="What was it? (e.g. Boba)" 
+                    class="w-full p-2.5 rounded-xl border border-[#f9e1e1] outline-none focus:border-[#f3d1d1] bg-white/60 text-sm">
+                <div class="flex gap-2">
+                    <input type="number" id="amount" placeholder="Amount" 
+                        class="w-1/2 p-2.5 rounded-xl border border-[#f9e1e1] outline-none focus:border-[#f3d1d1] bg-white/60 text-sm">
+                    <input type="date" id="date" 
+                        class="w-1/2 p-2.5 rounded-xl border border-[#f9e1e1] outline-none focus:border-[#f3d1d1] bg-white/60 text-sm text-[#8d7373]">
+                </div>
+                <button onclick="addTransaction()" 
+                    class="pink-pastel-gradient w-full py-2.5 rounded-xl text-[#8d7373] font-bold hover:brightness-95 active:scale-95 transition-all">
+                    Add Transaction
+                </button>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div>
+            <h3 class="text-xs font-semibold mb-4 text-[#e5b7b7] uppercase tracking-widest">History</h3>
+            <ul id="list" class="space-y-3 max-h-48 overflow-y-auto pr-2">
+                <!-- Data here -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        let firebaseConfig = {};
+        
+        firebaseConfig = {
+            apiKey: "AIzaSyB85g5PKlqQz8VjQUPNy8aVmG2JxfEG7HU",
+            authDomain: "ink-budget-planner.firebaseapp.com",
+            projectId: "pink-budget-planner",
+            storageBucket: "pink-budget-planner.firebasestorage.app",
+            messagingSenderId: "977632823220",
+            appId: "1:977632823220:web:ba874b5f58d2ef00b194e1"
+        };
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pink-budget-app';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let allTransactions = [];
+        let unsubscribe = null;
+
+        const authContainer = document.getElementById('auth-container');
+        const appContainer = document.getElementById('app-container');
+        const userEmailDisplay = document.getElementById('user-email');
+        const monthFilter = document.getElementById('month-filter');
+
+        // Set default date to today
+        document.getElementById('date').valueAsDate = new Date();
+
+        // Auth Logic
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            }
+        };
+        initAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                authContainer.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                userEmailDisplay.innerText = user.email;
+                setupSubscription();
+            } else {
+                currentUser = null;
+                authContainer.classList.remove('hidden');
+                appContainer.classList.add('hidden');
+                if (unsubscribe) unsubscribe();
+            }
+        });
+
+        window.handleSignUp = async () => {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-password').value;
+            if (!email || !pass) return;
+            try { await createUserWithEmailAndPassword(auth, email, pass); } 
+            catch (e) { alert(e.message); }
+        };
+
+        window.handleSignIn = async () => {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-password').value;
+            if (!email || !pass) return;
+            try { await signInWithEmailAndPassword(auth, email, pass); } 
+            catch (e) { alert(e.message); }
+        };
+
+        window.handleSignOut = () => signOut(auth);
+
+        // Data Subscription
+        function setupSubscription() {
+            if (!currentUser) return;
+            const colPath = collection(db, 'users', currentUser.uid, 'transactions');
+            
+            unsubscribe = onSnapshot(colPath, (snapshot) => {
+                allTransactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateMonthDropdown();
+                updateUI();
+            });
+        }
+
+        function updateMonthDropdown() {
+            const months = new Set();
+            const now = new Date();
+            months.add(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
+            
+            allTransactions.forEach(t => {
+                const date = new Date(t.date);
+                months.add(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`);
+            });
+
+            const sortedMonths = Array.from(months).sort().reverse();
+            const currentSelection = monthFilter.value;
+            
+            monthFilter.innerHTML = sortedMonths.map(m => {
+                const [y, mm] = m.split('-');
+                const monthName = new Date(y, mm - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+                return `<option value="${m}">${monthName}</option>`;
+            }).join('');
+
+            if (currentSelection && sortedMonths.includes(currentSelection)) {
+                monthFilter.value = currentSelection;
+            }
+        }
+
+        window.updateUI = function() {
+            const listEl = document.getElementById('list');
+            listEl.innerHTML = '';
+            
+            const selectedMonth = monthFilter.value;
+            
+            const filtered = allTransactions.filter(t => t.date.startsWith(selectedMonth));
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            let total = 0, income = 0, expense = 0;
+
+            filtered.forEach(t => {
+                const amt = parseFloat(t.amount);
+                total += amt;
+                if (amt > 0) income += amt;
+                else expense += Math.abs(amt);
+
+                const item = document.createElement('li');
+                const isNeg = amt < 0;
+                const dateObj = new Date(t.date);
+                const dateStr = dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+
+                item.className = `flex justify-between items-center p-3 bg-white/60 rounded-xl border-l-4 shadow-sm ${isNeg ? 'border-[#f3d1d1]' : 'border-[#d1f3d1]'}`;
+                item.innerHTML = `
+                    <div class="flex flex-col text-left">
+                        <span class="text-sm font-medium text-[#8d7373]">${t.text}</span>
+                        <span class="text-[9px] text-[#d1b1b1] uppercase tracking-tighter">${dateStr}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-bold ${isNeg ? 'text-[#e5b7b7]' : 'text-[#a3b18a]'}">
+                            ${amt > 0 ? '+' : ''}$${Math.abs(amt).toFixed(2)}
+                        </span>
+                        <button onclick="window.removeEntry('${t.id}')" class="text-[#d1b1b1] hover:text-[#e5b7b7]">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                listEl.appendChild(item);
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '<li class="text-center py-4 text-[#d1b1b1] text-xs italic">No entries for this month.</li>';
+            }
+
+            document.getElementById('balance').innerText = `$${total.toFixed(2)}`;
+            document.getElementById('income').innerText = `+$${income.toFixed(2)}`;
+            document.getElementById('expense').innerText = `-$${expense.toFixed(2)}`;
+        }
+
+        window.addTransaction = async () => {
+            const textInput = document.getElementById('text');
+            const amountInput = document.getElementById('amount');
+            const dateInput = document.getElementById('date');
+            
+            if (!currentUser || !textInput.value || !amountInput.value || !dateInput.value) return;
+
+            const colPath = collection(db, 'users', currentUser.uid, 'transactions');
+            await addDoc(colPath, {
+                text: textInput.value,
+                amount: parseFloat(amountInput.value),
+                date: dateInput.value,
+                createdAt: Date.now()
+            });
+            
+            textInput.value = ''; 
+            amountInput.value = '';
+        };
+
+        window.removeEntry = async (id) => {
+            if (!currentUser) return;
+            const docRef = doc(db, 'users', currentUser.uid, 'transactions');
+            await deleteDoc(docRef);
+        };
+    </script>
+</body>
+</html>
