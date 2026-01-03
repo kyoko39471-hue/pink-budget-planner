@@ -220,7 +220,8 @@
             months.add(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
             
             allTransactions.forEach(t => {
-                const date = new Date(t.date);
+                const [y,m,d]=t.date.split('-').map(Number);
+                const date = new Date(y,m-1,d);
                 months.add(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`);
             });
 
@@ -257,7 +258,8 @@
 
                 const item = document.createElement('li');
                 const isNeg = amt < 0;
-                const dateObj = new Date(t.date);
+                const [y, m, d] = t.date.split('-').map(Number);
+                const dateObj = new Date(y, m - 1, d);
                 const dateStr = dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 
                 item.className = `flex justify-between items-center p-3 bg-white/60 rounded-xl border-l-4 shadow-sm ${isNeg ? 'border-[#f3d1d1]' : 'border-[#d1f3d1]'}`;
